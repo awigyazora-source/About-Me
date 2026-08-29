@@ -9,11 +9,9 @@
   z-index: 50;
 }
 
-/* Label yang muncul pas hover */
+/* Label selalu terlihat, biar makin menggoda */
 .bgm-label {
-  opacity: 0;
-  transform: translateX(0.5rem);
-  transition: all 0.3s ease;
+  opacity: 1;
   background-color: #27272a;
   color: #e4e4e7;
   font-size: 0.75rem;
@@ -22,11 +20,12 @@
   border: 1px solid #3f3f46;
   white-space: nowrap;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+  animation: bgm-float 2s ease-in-out infinite;
 }
 
-.bgm-wrapper:hover .bgm-label {
-  opacity: 1;
-  transform: translateX(0);
+@keyframes bgm-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
 /* Tombol utama */
