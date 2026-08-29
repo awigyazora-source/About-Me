@@ -85,7 +85,6 @@
 </button>
 
 <script>
-  const iframe = document.getElementById('bg-music');
   const btn = document.getElementById('music-toggle');
   let player;
   let isPlaying = false;
@@ -96,20 +95,23 @@
 
   window.onYouTubeIframeAPIReady = function () {
     player = new YT.Player('bg-music', {
-      events: {
-        onReady: () => console.log('Player siap')
-      }
+      events: { onReady: () => console.log('Player siap') }
     });
   };
 
   btn.addEventListener('click', () => {
     if (!player) return;
+    const icon = btn.querySelector('.relative');
+    const pulse = btn.querySelector('.bgm-pulse');
+
     if (isPlaying) {
       player.pauseVideo();
-      btn.textContent = '🎵';
+      icon.textContent = '🎵';
+      pulse.classList.remove('hidden');
     } else {
       player.playVideo();
-      btn.textContent = '⏸️';
+      icon.textContent = '⏸️';
+      pulse.classList.add('hidden');
     }
     isPlaying = !isPlaying;
   });
