@@ -71,6 +71,50 @@
     </footer>
 
   </main>
+<!-- Iframe YouTube (disembunyiin) -->
+<iframe
+  id="bg-music"
+  class="hidden"
+  width="0" height="0"
+  src="https://www.youtube.com/embed/8tpPs5vfddI?enablejsapi=1&autoplay=0&loop=1&playlist=8tpPs5vfddI"
+  allow="autoplay">
+</iframe>
+
+<!-- Tombol play/pause -->
+<button id="music-toggle" class="fixed bottom-4 right-4 w-12 h-12 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-lg">
+  🎵
+</button>
+
+<script>
+  const iframe = document.getElementById('bg-music');
+  const btn = document.getElementById('music-toggle');
+  let player;
+  let isPlaying = false;
+
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+
+  window.onYouTubeIframeAPIReady = function () {
+    player = new YT.Player('bg-music', {
+      events: {
+        onReady: () => console.log('Player siap')
+      }
+    });
+  };
+
+  btn.addEventListener('click', () => {
+    if (!player) return;
+    if (isPlaying) {
+      player.pauseVideo();
+      btn.textContent = '🎵';
+    } else {
+      player.playVideo();
+      btn.textContent = '⏸️';
+    }
+    isPlaying = !isPlaying;
+  });
+</script>
 
 </body>
 </html>
