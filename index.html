@@ -3,143 +3,843 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zee's Sanctuary</title>
-  <link rel="stylesheet" href="bgm.css">
-  <!-- Load Tailwind CSS via CDN (Tanpa install apapun) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col items-center justify-center gap-6 p-4 font-sans selection:bg-zinc-800 relative overflow-x-hidden">
-  <video autoplay muted loop playsinline class="fixed top-0 left-0 w-full h-full object-cover -z-20"> <source src="bg-video.mp4" type="video/mp4"> </video> <div class="fixed top-0 left-0 w-full h-full bg-black/50 -z-10"></div>
+  <title>Zee's Sanctuary •</title>
 
-  <!-- Main Card Container -->
-  <main class="relative z-10 w-full max-w-md bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 shadow-2xl backdrop-blur-sm space-y-6">
+  <!-- Favicon Lokal / Fallback -->
+  <link rel="icon" type="image/jpeg" href="favicon.jpg" onerror="this.href='https://i.pinimg.com/736x/6a/42/04/6a420431dd7008a8842f001b1cdda64b.jpg'">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Phosphor Icons CDN -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    /* Equalizer & Audio Animations */
+    .eq-bar {
+      width: 3px;
+      background-color: #10b981;
+      border-radius: 9999px;
+      animation: eq 1s ease-in-out infinite alternate;
+    }
+    .eq-bar:nth-child(1) { height: 14px; animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { height: 8px; animation-delay: 0.3s; }
+    .eq-bar:nth-child(3) { height: 18px; animation-delay: 0.2s; }
+    .eq-bar:nth-child(4) { height: 10px; animation-delay: 0.4s; }
+
+    .eq-paused .eq-bar {
+      animation: none !important;
+      height: 4px !important;
+      background-color: #71717a !important;
+    }
+
+    @keyframes eq {
+      0% { height: 4px; }
+      100% { height: 18px; }
+    }
+
+    /* Floating particles */
+    .floating-heart {
+      position: fixed;
+      pointer-events: none;
+      animation: floatUp 1.2s ease-out forwards;
+      z-index: 100;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translate(0, 0) scale(0.6); opacity: 1; }
+      100% { transform: translate(var(--x, 0), -90px) scale(1.3); opacity: 0; }
+    }
+
+    /* Floating BGM Button Styles */
+    .bgm-wrapper {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 40;
+    }
+    .bgm-label {
+      background-color: #18181b;
+      color: #e4e4e7;
+      font-size: 0.75rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid #27272a;
+      white-space: nowrap;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      animation: bgmFloat 2.5s ease-in-out infinite;
+      backdrop-filter: blur(8px);
+    }
+    @keyframes bgmFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .bgm-button {
+      position: relative;
+      width: 3.25rem;
+      height: 3.25rem;
+      border-radius: 9999px;
+      background-color: #f4f4f5;
+      color: #09090b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.25);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .bgm-button:hover {
+      background-color: #ffffff;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.45);
+      transform: scale(1.08);
+    }
+    .bgm-pulse {
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background-color: rgba(255, 255, 255, 0.4);
+      animation: bgmPing 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    .bgm-pulse.hidden { display: none; }
+    @keyframes bgmPing {
+      75%, 100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    /* Custom Scrollbar for Modal Chat */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(24, 24, 27, 0.5); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
+  </style>
+</head>
+
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col items-center justify-center gap-4 p-4 font-sans selection:bg-zinc-800 relative overflow-x-hidden">
+
+  <!-- Background Video Lokal / Fallback Stream -->
+  <video autoplay muted loop playsinline class="fixed top-0 left-0 w-full h-full object-cover -z-20">
+    <source src="bg-video.mp4" type="video/mp4">
+  </video>
+  
+  <!-- Overlay Backdrop Gradient & Ambient Neon Orbs -->
+  <div class="fixed top-0 left-0 w-full h-full bg-zinc-950/75 backdrop-blur-[3px] -z-10"></div>
+  <div class="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-900/20 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+  <div class="fixed bottom-10 left-1/4 w-72 h-72 bg-emerald-900/15 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+
+  <!-- Kartu Utama Sanctuary -->
+  <main class="relative z-10 w-full max-w-md bg-zinc-900/85 border border-zinc-800/80 rounded-3xl p-6 shadow-2xl backdrop-blur-md space-y-5 transition duration-300 hover:border-zinc-700/60">
     
     <!-- Profile Header -->
-    <header class="flex items-center gap-4">
-      <!-- Foto Profile -->
-      <img src="pfp.jpg" alt="Zee" class="w-16 h-16 rounded-2xl object-cover border border-zinc-700">
-      <div>
-        <h1 class="text-xl font-bold text-white tracking-tight">Zee</h1>
-        <p class="text-xs text-zinc-400 font-mono">@Onlyzzz • I Love You.</p>
+    <header class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <!-- Interactive Avatar (Klik foto untuk partikel hati) -->
+        <div class="relative cursor-pointer select-none group" onclick="spawnHeart(event)" title="Klik untuk efek cinta!">
+          <img 
+            src="pfp.jpg" 
+            alt="Zee" 
+            class="w-16 h-16 rounded-2xl object-cover border border-zinc-700/80 shadow-md group-hover:scale-105 transition duration-200"
+            onerror="this.onerror=null; this.src='https://i.pinimg.com/736x/6a/42/04/6a420431dd7008a8842f001b1cdda64b.jpg';">
+          <!-- Status online dot -->
+          <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-zinc-900 rounded-full"></span>
+        </div>
+        
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold text-white tracking-tight">Zee</h1>
+            <span class="px-2 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-500/30 text-[10px] font-mono text-indigo-300 flex items-center gap-1">
+              <i class="ph-bold ph-sparkle text-xs"></i> Click PFP Gua!
+            </span>
+          </div>
+          <p class="text-xs text-zinc-400 font-mono mt-0.5">@Onlyzzz • I Love You</p>
+        </div>
+      </div>
+
+      <!-- Realtime Local Clock Widget -->
+      <div class="flex flex-col items-end bg-zinc-800/50 border border-zinc-800 px-3 py-1.5 rounded-2xl">
+        <span id="local-clock" class="text-xs font-mono font-bold text-zinc-200">--:--:--</span>
+        <span class="text-[9px] font-mono text-emerald-400 flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> WIB
+        </span>
       </div>
     </header>
 
     <!-- Bio / Status -->
     <section class="space-y-2">
       <p class="text-sm text-zinc-300 leading-relaxed">
-        Lihat Kebunku, Penuh dengan Bunga. Mawar Melati, Semuanya Indah.
+        Lihat Kebunku, Penuh dengan Bunga. Mawar Melati, Semuanya Indah. 
       </p>
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-800/80 border border-zinc-700/50 text-xs text-zinc-300">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-800/60 border border-zinc-700/50 text-xs text-zinc-300 w-full">
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        Currently: Missing You, Thinking of You and Loving You.
+        <span class="truncate">Currently: Missing You, Thinking of You and Loving You.</span>
       </div>
     </section>
 
-    <!-- Random Facts / Traits -->
-    <section class="space-y-3">
+    <!-- Spotify Track Bar Widget -->
+    <section class="p-3 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <div class="w-10 h-10 rounded-xl bg-emerald-950/50 border border-emerald-800/50 flex items-center justify-center shrink-0">
+          <i class="ph-fill ph-spotify-logo text-emerald-400 text-xl"></i>
+        </div>
+        <div class="truncate">
+          <p class="text-[10px] uppercase font-mono text-zinc-500 tracking-wider">Background Track</p>
+          <p id="track-title" class="text-xs font-semibold text-zinc-200 truncate">dolly x odel x twikipedia type beat - "sleeve" (Prod.Kukyo icey)</p>
+        </div>
+      </div>
+      
+      <!-- Equalizer Visualizer Bars -->
+      <div id="eq-container" class="flex items-end gap-0.5 h-5 px-2 eq-paused">
+        <span class="eq-bar"></span>
+        <span class="eq-bar"></span>
+        <span class="eq-bar"></span>
+        <span class="eq-bar"></span>
+      </div>
+    </section>
+
+    <!-- NEW FEATURE: Gemini AI Sanctuary Banner -->
+    <section class="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-purple-950/40 to-zinc-900 border border-indigo-500/30 flex items-center justify-between gap-3 shadow-lg shadow-indigo-950/30">
+      <div class="space-y-0.5">
+        <div class="flex items-center gap-1.5 text-xs font-semibold text-indigo-300">
+          <i class="ph-fill ph-brain text-indigo-400"></i>
+          <span>Zee's Sanctuary AI</span>
+        </div>
+        <p class="text-[11px] text-zinc-400">Chat with my AI persona or get your daily mood blessing.</p>
+      </div>
+      <button 
+        onclick="openAiModal()" 
+        class="shrink-0 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition duration-200 shadow-md shadow-indigo-600/30 flex items-center gap-1.5 active:scale-95">
+        <i class="ph-bold ph-chats-circle"></i>
+        <span>Ask AI</span>
+      </button>
+    </section>
+
+    <!-- Personality & Quirks -->
+    <section class="space-y-2.5">
       <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Personality & Quirks</h2>
       <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="p-3 rounded-xl bg-zinc-800/40 border border-zinc-800/80">
-          <span class="text-zinc-500 block">Vibe</span>
-          <span class="font-medium text-zinc-200">Chill & Sweet</span>
+        <div class="p-3 rounded-2xl bg-zinc-800/40 border border-zinc-800/80 hover:bg-zinc-800/60 transition duration-200">
+          <span class="text-zinc-500 block text-[11px]">Vibe</span>
+          <span class="font-medium text-zinc-200">Chill & Sweet </span>
         </div>
-        <div class="p-3 rounded-xl bg-zinc-800/40 border border-zinc-800/80">
-          <span class="text-zinc-500 block">Interest</span>
-          <span class="font-medium text-zinc-200">Tech, Games, Milks</span>
+        <div class="p-3 rounded-2xl bg-zinc-800/40 border border-zinc-800/80 hover:bg-zinc-800/60 transition duration-200">
+          <span class="text-zinc-500 block text-[11px]">Interest</span>
+          <span class="font-medium text-zinc-200">Tech, Games, Milk</span>
         </div>
-        <div class="p-3 rounded-xl bg-zinc-800/40 border border-zinc-800/80">
-          <span class="text-zinc-500 block">Social Battery</span>
-          <span class="font-medium text-zinc-200">If im tired then im just gonna Ignore You lol</span>
+        <div class="p-3 rounded-2xl bg-zinc-800/40 border border-zinc-800/80 hover:bg-zinc-800/60 transition duration-200 col-span-2">
+          <span class="text-zinc-500 block text-[11px]">Social Battery</span>
+          <span class="font-medium text-zinc-200">If I'm tired then I'm just gonna ignore you lol</span>
         </div>
-        <div class="p-3 rounded-xl bg-zinc-800/40 border border-zinc-800/80">
-          <span class="text-zinc-500 block">Sleep Schedule</span>
-          <span class="font-medium text-zinc-200">Random / Broken</span>
+        <div class="p-3 rounded-2xl bg-zinc-800/40 border border-zinc-800/80 hover:bg-zinc-800/60 transition duration-200 col-span-2">
+          <span class="text-zinc-500 block text-[11px]">Sleep Schedule</span>
+          <span class="font-medium text-zinc-200">Random / 10PM</span>
         </div>
       </div>
     </section>
 
-    <!-- Quick Links -->
+    <!-- Tech Stack Pill Badges -->
+    <section class="space-y-2">
+      <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Tech & Tools</h2>
+      <div class="flex flex-wrap gap-1.5 text-[11px] font-mono">
+        <span class="px-2.5 py-1 rounded-xl bg-zinc-800/60 border border-zinc-700/50 text-indigo-400">Gemini API</span>
+        <span class="px-2.5 py-1 rounded-xl bg-zinc-800/60 border border-zinc-700/50 text-emerald-400">Python</span>
+        <span class="px-2.5 py-1 rounded-xl bg-zinc-800/60 border border-zinc-700/50 text-sky-400">TailwindCSS</span>
+        <span class="px-2.5 py-1 rounded-xl bg-zinc-800/60 border border-zinc-700/50 text-amber-300">JavaScript</span>
+        <span class="px-2.5 py-1 rounded-xl bg-zinc-800/60 border border-zinc-700/50 text-rose-400">Git / GitHub</span>
+      </div>
+    </section>
+
+    <!-- Action Buttons (Discord Copy & GitHub) -->
     <footer class="space-y-2 pt-2 border-t border-zinc-800/60">
-      <a href="https://discord.com/users/862282793420455946" target="_blank" class="block w-full text-center py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs transition duration-200">
-        Chat on Discord
+      <button onclick="copyDiscordId()" class="relative group w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition duration-200 shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 active:scale-95">
+        <i class="ph-bold ph-discord-logo text-base"></i>
+        <span id="discordBtnText">Copy Discord ID</span>
+      </button>
+
+      <a href="https://github.com/awigyazora-source" target="_blank" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition duration-200 border border-zinc-700/60">
+        <i class="ph-bold ph-github-logo text-base"></i> Check My GitHub
       </a>
-     <a href="https://github.com/awigyazora-source" target="_blank" class="block w-full text-center py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs transition duration-200">
-      Check My GitHub
-    </a>
     </footer>
 
   </main>
 
-<!-- Social Media Row (taruh SETELAH </main>, SEBELUM div bgm-wrapper) -->
-<section class="relative z-10 w-full max-w-md grid grid-cols-2 sm:grid-cols-4 gap-3">
-  <a href="https://instagram.com/itz_zzo" target="_blank" class="flex flex-col items-center justify-center gap-2 py-4 px-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium hover:bg-zinc-900 hover:border-zinc-600 transition duration-200">
-    <img src="https://cdn.simpleicons.org/instagram/ffffff" alt="Instagram" class="w-5 h-5">
-    Instagram
-  </a>
-  <a href="https://tiktok.com/@juniorzeeplays" target="_blank" class="flex flex-col items-center justify-center gap-2 py-4 px-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium hover:bg-zinc-900 hover:border-zinc-600 transition duration-200">
-    <img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" class="w-5 h-5">
-    TikTok
-  </a>
-  <a href="https://open.spotify.com/user/31h3rcyiqcnvhakic6e73jremyji" target="_blank" class="flex flex-col items-center justify-center gap-2 py-4 px-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium hover:bg-zinc-900 hover:border-zinc-600 transition duration-200">
-    <img src="https://cdn.simpleicons.org/spotify/ffffff" alt="Spotify" class="w-5 h-5">
-    Spotify
-  </a>
-  <a href="https://www.roblox.com/users/3469076571/profile" target="_blank" class="flex flex-col items-center justify-center gap-2 py-4 px-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium hover:bg-zinc-900 hover:border-zinc-600 transition duration-200">
-    <img src="https://cdn.simpleicons.org/roblox/ffffff" alt="Roblox" class="w-5 h-5">
-    Roblox
-  </a>
-</section>
+  <!-- Social Media Row -->
+  <section class="relative z-10 w-full max-w-md grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-14">
+    <a href="https://instagram.com/itz_zzo" target="_blank" class="flex flex-col items-center justify-center gap-2 py-3.5 px-2 rounded-2xl bg-zinc-900/80 border border-zinc-800 text-zinc-200 text-xs font-medium hover:bg-zinc-800 hover:border-zinc-700 hover:-translate-y-0.5 transition duration-200 backdrop-blur-sm">
+      <img src="https://cdn.simpleicons.org/instagram/ffffff" alt="Instagram" class="w-5 h-5">
+      <span>Instagram</span>
+    </a>
+    <a href="https://tiktok.com/@juniorzeeplays" target="_blank" class="flex flex-col items-center justify-center gap-2 py-3.5 px-2 rounded-2xl bg-zinc-900/80 border border-zinc-800 text-zinc-200 text-xs font-medium hover:bg-zinc-800 hover:border-zinc-700 hover:-translate-y-0.5 transition duration-200 backdrop-blur-sm">
+      <img src="https://cdn.simpleicons.org/tiktok/ffffff" alt="TikTok" class="w-5 h-5">
+      <span>TikTok</span>
+    </a>
+    <a href="https://open.spotify.com/user/31h3rcyiqcnvhakic6e73jremyji" target="_blank" class="flex flex-col items-center justify-center gap-2 py-3.5 px-2 rounded-2xl bg-zinc-900/80 border border-zinc-800 text-zinc-200 text-xs font-medium hover:bg-zinc-800 hover:border-zinc-700 hover:-translate-y-0.5 transition duration-200 backdrop-blur-sm">
+      <img src="https://cdn.simpleicons.org/spotify/ffffff" alt="Spotify" class="w-5 h-5">
+      <span>Spotify</span>
+    </a>
+    <a href="https://www.roblox.com/users/3469076571/profile" target="_blank" class="flex flex-col items-center justify-center gap-2 py-3.5 px-2 rounded-2xl bg-zinc-900/80 border border-zinc-800 text-zinc-200 text-xs font-medium hover:bg-zinc-800 hover:border-zinc-700 hover:-translate-y-0.5 transition duration-200 backdrop-blur-sm">
+      <img src="https://cdn.simpleicons.org/roblox/ffffff" alt="Roblox" class="w-5 h-5">
+      <span>Roblox</span>
+    </a>
+  </section>
 
+  <!-- GEMINI AI ORACLE MODAL -->
+  <div id="aiModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div class="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300" id="aiModalContainer">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+            <i class="ph-bold ph-sparkle text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white tracking-tight flex items-center gap-2">
+              Zee's AI Oracle
+              <span class="px-1.5 py-0.5 text-[9px] font-mono bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 rounded">Gemini 3 Flash</span>
+            </h3>
+            <p class="text-[11px] text-zinc-400">Powered by Google Gemini Generative AI</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleKeySettings()" title="Pengaturan Gemini API Key" class="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-indigo-300 flex items-center justify-center transition">
+            <i class="ph-bold ph-gear text-sm"></i>
+          </button>
+          <button onclick="closeAiModal()" class="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition">
+            <i class="ph-bold ph-x text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Optional API Key Quick Input Bar -->
+      <div id="api-key-panel" class="hidden p-3 rounded-2xl bg-zinc-950/90 border border-indigo-500/40 space-y-2 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="font-semibold text-indigo-300 flex items-center gap-1.5">
+            <i class="ph-bold ph-key"></i> Google Gemini API Key
+          </span>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[10px] text-indigo-400 hover:underline flex items-center gap-1">
+            Dapatkan Key Gratis <i class="ph-bold ph-arrow-up-right"></i>
+          </a>
+        </div>
+        <div class="flex gap-2">
+          <input 
+            type="password" 
+            id="custom-api-key" 
+            placeholder="Tempel AI Studio API Key kamu di sini..." 
+            class="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-1.5 text-zinc-100 placeholder-zinc-500 text-[11px] focus:outline-none focus:border-indigo-500 font-mono">
+          <button 
+            onclick="saveApiKey()" 
+            class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px] transition">
+            Simpan
+          </button>
+        </div>
+        <p id="key-status" class="text-[10px] text-zinc-400">Key disimpan lokal di browsermu dan tidak dibagikan ke siapapun.</p>
+      </div>
+
+      <!-- Feature Mode Tabs -->
+      <div class="grid grid-cols-3 gap-1.5 p-1 bg-zinc-950/70 border border-zinc-800 rounded-2xl text-[11px] font-medium">
+        <button id="tab-persona" onclick="switchAiTab('persona')" class="py-1.5 rounded-xl bg-indigo-600 text-white shadow transition">
+          ZeeBot Persona
+        </button>
+        <button id="tab-vibe" onclick="switchAiTab('vibe')" class="py-1.5 rounded-xl text-zinc-400 hover:text-zinc-200 transition">
+          Mood Vibe Matcher
+        </button>
+        <button id="tab-fortune" onclick="switchAiTab('fortune')" class="py-1.5 rounded-xl text-zinc-400 hover:text-zinc-200 transition">
+          Cosmic Fortune
+        </button>
+      </div>
+
+      <!-- Tab 1: ZeeBot Persona Chat -->
+      <div id="panel-persona" class="space-y-3 flex-1 flex flex-col overflow-hidden">
+        <!-- Chat History Container -->
+        <div id="persona-chat-box" class="flex-1 min-h-[160px] max-h-[220px] overflow-y-auto space-y-2.5 p-3 rounded-2xl bg-zinc-950/50 border border-zinc-800/80 custom-scrollbar text-xs">
+          <!-- Bot Welcome Message -->
+          <div class="flex gap-2.5 items-start">
+            <div class="w-6 h-6 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 shrink-0 text-xs">Z</div>
+            <div class="bg-zinc-800/70 p-2.5 rounded-2xl rounded-tl-none border border-zinc-700/40 text-zinc-200 max-w-[85%] leading-relaxed">
+              Halo! Aku kembaran AI-nya Zee. Mau tanya tentang hobiku, rekomendasi musik, tech stack, atau ngobrol santai? Tanya aja! ✨
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div class="flex flex-wrap gap-1.5 text-[10px]">
+          <button onclick="fillPrompt('Ceritain tentang kepribadian Zee dong!')" class="px-2.5 py-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/50 transition">
+            ✨ Kenalan sama Zee
+          </button>
+          <button onclick="fillPrompt('Rekomendasiin game seru di Roblox!')" class="px-2.5 py-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/50 transition">
+            🎮 Game Roblox favorit
+          </button>
+          <button onclick="fillPrompt('Gimana jadwal tidur Zee yang broken itu? lol')" class="px-2.5 py-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/50 transition">
+            🌙 Sleep Schedule
+          </button>
+        </div>
+
+        <!-- Input Box -->
+        <div class="flex items-center gap-2">
+          <input 
+            type="text" 
+            id="persona-input" 
+            placeholder="Ketik pesan untuk ZeeBot..." 
+            onkeydown="if(event.key==='Enter') sendPersonaMessage()"
+            class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition">
+          <button 
+            id="persona-send-btn" 
+            onclick="sendPersonaMessage()" 
+            class="px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition active:scale-95 flex items-center justify-center">
+            <i class="ph-bold ph-paper-plane-right text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 2: Mood & Vibe Matcher -->
+      <div id="panel-vibe" class="hidden space-y-3 flex-1 flex flex-col">
+        <p class="text-xs text-zinc-400">Ceritakan apa yang sedang kamu rasakan sekarang, dan Gemini akan meracik pesan ketenangan (*sanctuary vibe*) spesial untukmu.</p>
+        <textarea 
+          id="vibe-input" 
+          rows="3" 
+          placeholder="Misal: Lagi capek banget nugas sambil denger hujan, butuh kata-kata semangat..." 
+          class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
+        
+        <button 
+          id="vibe-btn" 
+          onclick="generateVibe()" 
+          class="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
+          <i class="ph-bold ph-magic-wand"></i>
+          <span>Racik Sanctuary Vibe & Quote</span>
+        </button>
+
+        <div id="vibe-output" class="hidden p-3 rounded-2xl bg-zinc-950/70 border border-indigo-500/30 text-xs text-zinc-200 leading-relaxed max-h-[150px] overflow-y-auto custom-scrollbar"></div>
+      </div>
+
+      <!-- Tab 3: Daily Cosmic Fortune -->
+      <div id="panel-fortune" class="hidden space-y-3 flex-1 flex flex-col">
+        <p class="text-xs text-zinc-400">Buka ramalan santai & energi harimu dari Sanctuary Oracle.</p>
+        
+        <div id="fortune-card" class="p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800 text-center space-y-2 min-h-[120px] flex flex-col items-center justify-center">
+          <i class="ph-fill ph-sparkle text-2xl text-amber-400 animate-pulse"></i>
+          <p id="fortune-text" class="text-xs text-zinc-300 italic">"Klik tombol di bawah untuk membuka ramalan harimu..."</p>
+        </div>
+
+        <button 
+          id="fortune-btn" 
+          onclick="generateFortune()" 
+          class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white text-xs font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-amber-600/20">
+          <i class="ph-bold ph-crystal-ball"></i>
+          <span>Tarik Ramalan Hari Ini 🔮</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BGM Floating Action Button -->
   <div class="bgm-wrapper">
-  <span class="bgm-label">Click Me For Music! 🎧</span>
-  <button id="music-toggle" class="bgm-button">
-    <span class="bgm-pulse"></span>
-    <span class="relative z-10">🎵</span>
-  </button>
-</div>
+    <span class="bgm-label" id="bgm-hint">Click For Music! 🎧</span>
+    <button id="music-toggle" class="bgm-button" aria-label="Toggle Background Music">
+      <span class="bgm-pulse" id="bgm-pulse-ring"></span>
+      <span class="relative z-10" id="music-icon">🎵</span>
+    </button>
+  </div>
 
-<!-- Iframe YouTube (disembunyiin) -->
-<iframe
-  id="bg-music"
-  class="hidden"
-  width="0" height="0"
-  src="https://www.youtube.com/embed/8tpPs5vfddI?enablejsapi=1&autoplay=0&loop=1&playlist=8tpPs5vfddI"
-  allow="autoplay">
-</iframe>
+  <!-- YouTube Audio Iframe -->
+  <iframe
+    id="bg-music"
+    class="hidden"
+    width="0" height="0"
+    src="https://www.youtube.com/embed/8tpPs5vfddI?enablejsapi=1&autoplay=0&loop=1&playlist=8tpPs5vfddI"
+    allow="autoplay">
+  </iframe>
 
+  <script>
+    /* =========================================================
+       1. GEMINI API CONFIGURATION & CALL HANDLER
+       ========================================================= */
+    // Fallback key container (mendukung penyimpanan di localStorage browser)
+    let savedApiKey = localStorage.getItem('zee_gemini_api_key') || "";
 
-<script>
-  const btn = document.getElementById('music-toggle');
-  let player;
-  let isPlaying = false;
-
-  const tag = document.createElement('script');
-  tag.src = "https://www.youtube.com/iframe_api";
-  document.body.appendChild(tag);
-
-  window.onYouTubeIframeAPIReady = function () {
-    player = new YT.Player('bg-music', {
-      events: { onReady: () => console.log('Player siap') }
-    });
-  };
-
-  btn.addEventListener('click', () => {
-    if (!player) return;
-    const icon = btn.querySelector('.relative');
-    const pulse = btn.querySelector('.bgm-pulse');
-
-    if (isPlaying) {
-      player.pauseVideo();
-      icon.textContent = '🎵';
-      pulse.classList.remove('hidden');
-    } else {
-      player.playVideo();
-      icon.textContent = '⏸️';
-      pulse.classList.add('hidden');
+    function toggleKeySettings() {
+      const panel = document.getElementById('api-key-panel');
+      panel.classList.toggle('hidden');
+      const input = document.getElementById('custom-api-key');
+      if (!panel.classList.contains('hidden')) {
+        input.value = savedApiKey;
+      }
     }
-    isPlaying = !isPlaying;
-  });
-</script>
 
+    function saveApiKey() {
+      const input = document.getElementById('custom-api-key');
+      const val = input.value.trim();
+      const status = document.getElementById('key-status');
+      if (val) {
+        savedApiKey = val;
+        localStorage.setItem('zee_gemini_api_key', val);
+        status.innerHTML = '<span class="text-emerald-400">✔ API Key berhasil disimpan! Siap digunakan.</span>';
+        setTimeout(() => {
+          document.getElementById('api-key-panel').classList.add('hidden');
+        }, 1500);
+      } else {
+        localStorage.removeItem('zee_gemini_api_key');
+        savedApiKey = "";
+        status.innerHTML = '<span class="text-amber-400">API Key dikosongkan (menggunakan mode fallback).</span>';
+      }
+    }
+
+    /**
+     * Helper to call Gemini 3 Flash API with exponential backoff & Fallback
+     */
+    async function callGemini(promptText, systemInstructionText = "") {
+      const activeKey = savedApiKey || "";
+      
+      // Jika belum ada key yang dimasukkan, gunakan fallback respons pintar persona
+      if (!activeKey) {
+        return getPersonaFallback(promptText);
+      }
+
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeKey}`;
+      
+      const payload = {
+        contents: [{ parts: [{ text: promptText }] }]
+      };
+
+      if (systemInstructionText) {
+        payload.systemInstruction = {
+          parts: [{ text: systemInstructionText }]
+        };
+      }
+
+      const delays = [1000, 2000, 4000];
+      for (let i = 0; i <= delays.length; i++) {
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            if (response.status === 429 && i < delays.length) {
+              await new Promise(res => setTimeout(res, delays[i]));
+              continue;
+            }
+            throw new Error(`HTTP Error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (generatedText) {
+            return generatedText;
+          } else {
+            throw new Error("Empty response received from Gemini.");
+          }
+        } catch (err) {
+          if (i === delays.length) {
+            // Fallback jika API bermasalah/kuota habis
+            return getPersonaFallback(promptText);
+          }
+          await new Promise(res => setTimeout(res, delays[i]));
+        }
+      }
+    }
+
+    // Fallback cerdas agar Zee AI tetap bisa menjawab jika offline/key belum diisi
+    function getPersonaFallback(input) {
+      const lower = input.toLowerCase();
+      if (lower.includes('kenalan') || lower.includes('kepribadian') || lower.includes('siapa')) {
+        return "Halo! Gue Zee, he/him. Suka coding santai, dengerin lofi, minum susu, dan main Roblox. Kalau malam gue aktif banget karena jadwal tidur gue agak broken haha! ✨";
+      }
+      if (lower.includes('roblox') || lower.includes('game')) {
+        return "Gue suka main game santai atau adventure di Roblox! Kadang suka eksplor map bareng temen-temen pas baterai sosial masih penuh 🎮";
+      }
+      if (lower.includes('tidur') || lower.includes('sleep') || lower.includes('broken')) {
+        return "Jadwal tidur gue? Jangan ditiru ya wkwk, kadang tidur jam 3 subuh kadang bangun siang. Lagi berusaha perbaiki juga nih! 🌙☕";
+      }
+      if (lower.includes('musik') || lower.includes('lagu') || lower.includes('spotify')) {
+        return "Gue suka banget lofi chill vibes sama synthwave yang adem. Coba nyalain tombol musik di pojok kanan bawah, itu salah satu playlist favorit gue! 🎧";
+      }
+      return "Makasih udah mampir ke Sanctuary gue! Santai aja di sini ya, jangan lupa jaga kesehatan dan minum air putih hari ini ✨";
+    }
+
+    /* =========================================================
+       2. AI MODAL INTERACTIVITY & TABS
+       ========================================================= */
+    const aiModal = document.getElementById('aiModal');
+    const aiModalContainer = document.getElementById('aiModalContainer');
+
+    function openAiModal() {
+      aiModal.classList.remove('opacity-0', 'pointer-events-none');
+      aiModalContainer.classList.remove('scale-95');
+      aiModalContainer.classList.add('scale-100');
+    }
+
+    function closeAiModal() {
+      aiModal.classList.add('opacity-0', 'pointer-events-none');
+      aiModalContainer.classList.remove('scale-100');
+      aiModalContainer.classList.add('scale-95');
+    }
+
+    // Close on backdrop click
+    aiModal.addEventListener('click', (e) => {
+      if (e.target === aiModal) closeAiModal();
+    });
+
+    function switchAiTab(tabName) {
+      const tabs = ['persona', 'vibe', 'fortune'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const panel = document.getElementById(`panel-${t}`);
+        if (t === tabName) {
+          btn.className = "py-1.5 rounded-xl bg-indigo-600 text-white shadow transition";
+          panel.classList.remove('hidden');
+        } else {
+          btn.className = "py-1.5 rounded-xl text-zinc-400 hover:text-zinc-200 transition";
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
+    function fillPrompt(text) {
+      document.getElementById('persona-input').value = text;
+      sendPersonaMessage();
+    }
+
+    /* =========================================================
+       3. FEATURE A: ZEEBOT PERSONA CHAT
+       ========================================================= */
+    const ZEE_PERSONA_PROMPT = `
+You are the AI persona twin of "Zee" (@Onlyzzz), a chill, sweet, witty, and slightly introverted Indonesian developer/gamer.
+Profile Details:
+- Name: Zee (he/him)
+- Vibe: Chill & Sweet, likes drinking milk and coffee, plays games (Roblox, PC tech games).
+- Personality: Loves aesthetic things, supportive, has a broken/random sleep schedule, likes soft lofi music. If tired, he jokingly ignores people.
+- Tech Stack: Python, TailwindCSS, JavaScript, VS Code, Git/GitHub, Gemini AI.
+- Tone: Friendly Indonesian informal ("gue/aku", "kamu/lu", warm, witty, aesthetic, relaxing).
+Keep your answers brief (2-4 sentences max), polite, cool, and filled with charming personality and emojis.
+`;
+
+    async function sendPersonaMessage() {
+      const input = document.getElementById('persona-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chatBox = document.getElementById('persona-chat-box');
+      const sendBtn = document.getElementById('persona-send-btn');
+
+      // 1. Render User Message
+      const userBubble = document.createElement('div');
+      userBubble.className = "flex gap-2.5 items-start justify-end";
+      userBubble.innerHTML = `
+        <div class="bg-indigo-600 p-2.5 rounded-2xl rounded-tr-none text-white max-w-[85%] leading-relaxed">
+          ${escapeHtml(text)}
+        </div>
+      `;
+      chatBox.appendChild(userBubble);
+      input.value = "";
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // 2. Render Loading Indicator
+      const loadingBubble = document.createElement('div');
+      loadingBubble.className = "flex gap-2.5 items-start";
+      loadingBubble.id = "temp-ai-loading";
+      loadingBubble.innerHTML = `
+        <div class="w-6 h-6 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 shrink-0 text-xs">Z</div>
+        <div class="bg-zinc-800/70 p-2.5 rounded-2xl rounded-tl-none border border-zinc-700/40 text-zinc-400 italic flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+          <span>Zee sedang mengetik...</span>
+        </div>
+      `;
+      chatBox.appendChild(loadingBubble);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      sendBtn.disabled = true;
+
+      try {
+        const reply = await callGemini(text, ZEE_PERSONA_PROMPT);
+        const tempLoading = document.getElementById('temp-ai-loading');
+        if (tempLoading) tempLoading.remove();
+
+        // 3. Render Bot Response
+        const botBubble = document.createElement('div');
+        botBubble.className = "flex gap-2.5 items-start";
+        botBubble.innerHTML = `
+          <div class="w-6 h-6 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 shrink-0 text-xs">Z</div>
+          <div class="bg-zinc-800/70 p-2.5 rounded-2xl rounded-tl-none border border-zinc-700/40 text-zinc-200 max-w-[85%] leading-relaxed">
+            ${escapeHtml(reply)}
+          </div>
+        `;
+        chatBox.appendChild(botBubble);
+      } catch (err) {
+        const tempLoading = document.getElementById('temp-ai-loading');
+        if (tempLoading) tempLoading.remove();
+
+        const errBubble = document.createElement('div');
+        errBubble.className = "flex gap-2.5 items-start";
+        errBubble.innerHTML = `
+          <div class="w-6 h-6 rounded-lg bg-rose-600/30 border border-rose-500/40 flex items-center justify-center text-rose-300 shrink-0 text-xs">!</div>
+          <div class="bg-rose-950/40 p-2.5 rounded-2xl rounded-tl-none border border-rose-800/40 text-rose-300 max-w-[85%]">
+            Waduh, koneksi ke Zee AI sedang sibuk. Coba lagi sebentar ya! ✨
+          </div>
+        `;
+        chatBox.appendChild(errBubble);
+      } finally {
+        sendBtn.disabled = false;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    }
+
+    /* =========================================================
+       4. FEATURE B: MOOD & VIBE MATCHER
+       ========================================================= */
+    async function generateVibe() {
+      const input = document.getElementById('vibe-input');
+      const output = document.getElementById('vibe-output');
+      const btn = document.getElementById('vibe-btn');
+      const moodText = input.value.trim();
+
+      if (!moodText) return;
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i><span>Menyelaraskan Aura...</span>`;
+      output.classList.remove('hidden');
+      output.innerHTML = `<span class="text-zinc-400 italic animate-pulse">Menghubungkan suasana hatimu dengan semesta... ✨</span>`;
+
+      const prompt = `User mood: "${moodText}". Berikan 1 pesan sanctuary yang sangat menenangkan hati, hangat, estetik (2-3 kalimat), lalu sarankan 1 aktivitas santai kecil (misal: minum teh hangat / dengar lagu lofi). Gunakan bahasa Indonesia yang manis dan puitis.`;
+      
+      try {
+        const result = await callGemini(prompt, "You are a poetic, warm, healing sanctuary guide.");
+        output.innerHTML = `
+          <div class="space-y-1.5">
+            <span class="text-[10px] font-mono uppercase text-indigo-400 font-bold block">✨ Sanctuary Vibe Blessing:</span>
+            <p class="text-zinc-200 italic leading-relaxed">${escapeHtml(result)}</p>
+          </div>
+        `;
+      } catch (e) {
+        output.innerHTML = `<span class="text-rose-400">Gagal meracik aura. Silakan coba lagi!</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="ph-bold ph-magic-wand"></i><span>Racik Sanctuary Vibe & Quote</span>`;
+      }
+    }
+
+    /* =========================================================
+       5. FEATURE C: COSMIC FORTUNE OF THE DAY
+       ========================================================= */
+    async function generateFortune() {
+      const fortuneText = document.getElementById('fortune-text');
+      const btn = document.getElementById('fortune-btn');
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i><span>Membaca Bintang...</span>`;
+      fortuneText.innerHTML = `<span class="animate-pulse">Menyerap energi kosmik... 🔮</span>`;
+
+      const prompt = `Tuliskan 1 ramalan keberuntungan harian (daily fortune cookie) yang unik, lucu, atau bermakna untuk hari ini. Format singkat (1-2 kalimat) dengan sentuhan humor dan motivasi santai. Bahasa Indonesia.`;
+
+      try {
+        const fortune = await callGemini(prompt, "You are a witty cosmic fortune cookie oracle.");
+        fortuneText.innerHTML = `"${escapeHtml(fortune)}"`;
+      } catch (err) {
+        fortuneText.textContent = `"Hari ini adalah waktu yang tepat untuk minum air putih dan istirahat sejenak ✨"`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="ph-bold ph-crystal-ball"></i><span>Tarik Ramalan Hari Ini 🔮</span>`;
+      }
+    }
+
+    function escapeHtml(string) {
+      const div = document.createElement('div');
+      div.textContent = string;
+      return div.innerHTML;
+    }
+
+    /* =========================================================
+       6. AUDIO CONTROLLER, CLOCK & EASTER EGGS
+       ========================================================= */
+    const musicBtn = document.getElementById('music-toggle');
+    const musicIcon = document.getElementById('music-icon');
+    const pulseRing = document.getElementById('bgm-pulse-ring');
+    const eqContainer = document.getElementById('eq-container');
+    const bgmHint = document.getElementById('bgm-hint');
+    let player;
+    let isPlaying = false;
+
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
+
+    window.onYouTubeIframeAPIReady = function () {
+      player = new YT.Player('bg-music', {
+        events: {
+          onReady: () => console.log('BGM Player ready')
+        }
+      });
+    };
+
+    musicBtn.addEventListener('click', () => {
+      if (!player) return;
+      if (isPlaying) {
+        player.pauseVideo();
+        musicIcon.textContent = '🎵';
+        pulseRing.classList.remove('hidden');
+        eqContainer.classList.add('eq-paused');
+        bgmHint.textContent = 'Paused 💤';
+      } else {
+        player.playVideo();
+        musicIcon.textContent = '⏸️';
+        pulseRing.classList.add('hidden');
+        eqContainer.classList.remove('eq-paused');
+        bgmHint.textContent = 'Playing 🎧';
+      }
+      isPlaying = !isPlaying;
+    });
+
+    // Real-time Clock (WIB)
+    function updateClock() {
+      const now = new Date();
+      const options = { timeZone: 'Asia/Jakarta', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      const timeStr = now.toLocaleTimeString('en-GB', options);
+      const clockElem = document.getElementById('local-clock');
+      if (clockElem) clockElem.textContent = timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Discord ID Copy
+    function copyDiscordId() {
+      const discordId = "862282793420455946";
+      const btnText = document.getElementById('discordBtnText');
+
+      const textArea = document.createElement("textarea");
+      textArea.value = discordId;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        const originalHTML = btnText.innerHTML;
+        btnText.innerHTML = "ID Copied to Clipboard! ✨";
+        setTimeout(() => {
+          btnText.innerHTML = originalHTML;
+        }, 2200);
+      } catch (err) {
+        console.error('Copy error', err);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    // Heart particles
+    function spawnHeart(e) {
+      const heart = document.createElement('span');
+      heart.className = 'floating-heart text-lg';
+      heart.textContent = ['💖', '✨', '🌸', '🤍', '⭐'][Math.floor(Math.random() * 5)];
+      heart.style.left = `${e.clientX - 10}px`;
+      heart.style.top = `${e.clientY - 10}px`;
+      heart.style.setProperty('--x', `${(Math.random() - 0.5) * 60}px`);
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 1200);
+    }
+  </script>
 </body>
 </html>
