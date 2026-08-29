@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zee's Sanctuary</title>
+  <link rel="stylesheet" href="bgm.css">
   <!-- Load Tailwind CSS via CDN (Tanpa install apapun) -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -78,8 +79,9 @@
 </iframe>
 
 <!-- Tombol play/pause -->
-<button id="music-toggle" class="fixed bottom-4 right-4 w-12 h-12 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-lg">
-  🎵
+<button id="music-toggle" class="bgm-button">
+  <span class="bgm-pulse"></span>
+  <span class="relative z-10">🎵</span>
 </button>
 
 <script>

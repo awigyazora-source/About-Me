@@ -1,0 +1,74 @@
+/* Container tombol musik */
+.bgm-wrapper {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 50;
+}
+
+/* Label yang muncul pas hover */
+.bgm-label {
+  opacity: 0;
+  transform: translateX(0.5rem);
+  transition: all 0.3s ease;
+  background-color: #27272a;
+  color: #e4e4e7;
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid #3f3f46;
+  white-space: nowrap;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+.bgm-wrapper:hover .bgm-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Tombol utama */
+.bgm-button {
+  position: relative;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  background-color: #f4f4f5;
+  color: #09090b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.bgm-button:hover {
+  background-color: #ffffff;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+/* Ring animasi pulse */
+.bgm-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.4);
+  animation: bgm-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.bgm-pulse.hidden {
+  display: none;
+}
+
+@keyframes bgm-ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
