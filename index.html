@@ -8,7 +8,7 @@
   <!-- Load Tailwind CSS via CDN (Tanpa install apapun) -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center p-4 font-sans selection:bg-zinc-800 relative overflow-hidden">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col items-center justify-center gap-6 p-4 font-sans selection:bg-zinc-800 relative overflow-x-hidden">
   <video autoplay muted loop playsinline class="fixed top-0 left-0 w-full h-full object-cover -z-20"> <source src="bg-video.mp4" type="video/mp4"> </video> <div class="fixed top-0 left-0 w-full h-full bg-black/50 -z-10"></div>
 
   <!-- Main Card Container -->
@@ -69,6 +69,22 @@
     </footer>
 
   </main>
+
+<!-- Social Media Row (taruh SETELAH </main>, SEBELUM div bgm-wrapper) -->
+<section class="relative z-10 w-full max-w-md grid grid-cols-2 sm:grid-cols-4 gap-3">
+  <a href="https://instagram.com/itz_zzo" target="_blank" class="flex items-center justify-center text-center py-4 px-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium hover:bg-zinc-900 hover:border-zinc-600 transition duration-200">
+    Instagram
+  </a>
+  <a href="https://tiktok.com/@juniorzeeplays" target="_blank" class="flex items-center justify-center text-center py-4 px-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium hover:bg-zinc-900 hover:border-zinc-600 transition duration-200">
+    TikTok
+  </a>
+  <a href="https://open.spotify.com/user/31h3rcyiqcnvhakic6e73jremyji" target="_blank" class="flex items-center justify-center text-center py-4 px-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium hover:bg-zinc-900 hover:border-zinc-600 transition duration-200">
+    Spotify
+  </a>
+  <a href="https://www.roblox.com/users/3469076571/profile" target="_blank" class="flex items-center justify-center text-center py-4 px-2 rounded-2xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-medium hover:bg-zinc-900 hover:border-zinc-600 transition duration-200">
+    Roblox
+  </a>
+</section>
 
   <div class="bgm-wrapper">
   <span class="bgm-label">Click Me For Music! 🎧</span>
