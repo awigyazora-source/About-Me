@@ -387,64 +387,23 @@
       }
     }
 
-    /**
-     * Helper to call Gemini 3 Flash API with exponential backoff & Fallback
-     */
-    async function callGemini(promptText, systemInstructionText = "") {
-      const activeKey = savedApiKey || "";
-      
-      // Jika belum ada key yang dimasukkan, gunakan fallback respons pintar persona
-      if (!activeKey) {
-        return getPersonaFallback(promptText);
-      }
+      async function callGemini(promptText, systemInstructionText = "") {
+  try {
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: promptText, systemInstruction: systemInstructionText })
+    });
 
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeKey}`;
-      
-      const payload = {
-        contents: [{ parts: [{ text: promptText }] }]
-      };
+    if (!response.ok) throw new Error('Server error');
 
-      if (systemInstructionText) {
-        payload.systemInstruction = {
-          parts: [{ text: systemInstructionText }]
-        };
-      }
-
-      const delays = [1000, 2000, 4000];
-      for (let i = 0; i <= delays.length; i++) {
-        try {
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-
-          if (!response.ok) {
-            if (response.status === 429 && i < delays.length) {
-              await new Promise(res => setTimeout(res, delays[i]));
-              continue;
-            }
-            throw new Error(`HTTP Error: ${response.status}`);
-          }
-
-          const data = await response.json();
-          const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (generatedText) {
-            return generatedText;
-          } else {
-            throw new Error("Empty response received from Gemini.");
-          }
-        } catch (err) {
-          if (i === delays.length) {
-            // Fallback jika API bermasalah/kuota habis
-            return getPersonaFallback(promptText);
-          }
-          await new Promise(res => setTimeout(res, delays[i]));
-        }
-      }
-    }
-
-    // Fallback cerdas agar Zee AI tetap bisa menjawab jika offline/key belum diisi
+    const data = await response.json();
+    return data.text;
+  } catch (err) {
+    return getPersonaFallback(promptText);
+  }
+}
+// Fallback cerdas agar Zee AI tetap bisa menjawab jika offline/key belum diisi
     function getPersonaFallback(input) {
       const lower = input.toLowerCase();
       if (lower.includes('kenalan') || lower.includes('kepribadian') || lower.includes('siapa')) {
