@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zee's Sanctuary •</title>
+  <title>Zee's Sanctuary • AI Edition</title>
 
   <!-- Favicon Lokal / Fallback -->
   <link rel="icon" type="image/jpeg" href="favicon.jpg" onerror="this.href='https://i.pinimg.com/736x/6a/42/04/6a420431dd7008a8842f001b1cdda64b.jpg'">
@@ -153,7 +153,7 @@
               <i class="ph-bold ph-sparkle text-xs"></i> AI POWERED
             </span>
           </div>
-          <p class="text-xs text-zinc-400 font-mono mt-0.5">@Onlyzzz • I Love You</p>
+          <p class="text-xs text-zinc-400 font-mono mt-0.5">@Onlyzzz • he/him</p>
         </div>
       </div>
 
@@ -169,7 +169,7 @@
     <!-- Bio / Status -->
     <section class="space-y-2">
       <p class="text-sm text-zinc-300 leading-relaxed">
-        Lihat Kebunku, Penuh dengan Bunga. Mawar Melati, Semuanya Indah. 
+        Lihat Kebunku, Penuh dengan Bunga. Mawar Melati, Semuanya Indah. ✨
       </p>
       <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-800/60 border border-zinc-700/50 text-xs text-zinc-300 w-full">
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -185,7 +185,7 @@
         </div>
         <div class="truncate">
           <p class="text-[10px] uppercase font-mono text-zinc-500 tracking-wider">Background Track</p>
-          <p id="track-title" class="text-xs font-semibold text-zinc-200 truncate">dolly x odel x twikipedia type beat - "sleeve" (Prod.Kukyo icey)</p>
+          <p id="track-title" class="text-xs font-semibold text-zinc-200 truncate">Lofi Chill Vibes</p>
         </div>
       </div>
       
@@ -297,14 +297,44 @@
           <div>
             <h3 class="text-sm font-bold text-white tracking-tight flex items-center gap-2">
               Zee's AI Oracle
-              <span class="px-1.5 py-0.5 text-[9px] font-mono bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 rounded">Gemini 2.5</span>
+              <span class="px-1.5 py-0.5 text-[9px] font-mono bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 rounded">Gemini 3 Flash</span>
             </h3>
             <p class="text-[11px] text-zinc-400">Powered by Google Gemini Generative AI</p>
           </div>
         </div>
-        <button onclick="closeAiModal()" class="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition">
-          <i class="ph-bold ph-x text-sm"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleKeySettings()" title="Pengaturan Gemini API Key" class="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-indigo-300 flex items-center justify-center transition">
+            <i class="ph-bold ph-gear text-sm"></i>
+          </button>
+          <button onclick="closeAiModal()" class="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition">
+            <i class="ph-bold ph-x text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Optional API Key Quick Input Bar -->
+      <div id="api-key-panel" class="hidden p-3 rounded-2xl bg-zinc-950/90 border border-indigo-500/40 space-y-2 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="font-semibold text-indigo-300 flex items-center gap-1.5">
+            <i class="ph-bold ph-key"></i> Google Gemini API Key
+          </span>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[10px] text-indigo-400 hover:underline flex items-center gap-1">
+            Dapatkan Key Gratis <i class="ph-bold ph-arrow-up-right"></i>
+          </a>
+        </div>
+        <div class="flex gap-2">
+          <input 
+            type="password" 
+            id="custom-api-key" 
+            placeholder="Tempel AI Studio API Key kamu di sini..." 
+            class="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-1.5 text-zinc-100 placeholder-zinc-500 text-[11px] focus:outline-none focus:border-indigo-500 font-mono">
+          <button 
+            onclick="saveApiKey()" 
+            class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-[11px] transition">
+            Simpan
+          </button>
+        </div>
+        <p id="key-status" class="text-[10px] text-zinc-400">Key disimpan lokal di browsermu dan tidak dibagikan ke siapapun.</p>
       </div>
 
       <!-- Feature Mode Tabs -->
@@ -426,13 +456,48 @@
     /* =========================================================
        1. GEMINI API CONFIGURATION & CALL HANDLER
        ========================================================= */
-    const apiKey = ""; // Canvas runtime automatically injects the API key
+    // Fallback key container (mendukung penyimpanan di localStorage browser)
+    let savedApiKey = localStorage.getItem('zee_gemini_api_key') || "";
+
+    function toggleKeySettings() {
+      const panel = document.getElementById('api-key-panel');
+      panel.classList.toggle('hidden');
+      const input = document.getElementById('custom-api-key');
+      if (!panel.classList.contains('hidden')) {
+        input.value = savedApiKey;
+      }
+    }
+
+    function saveApiKey() {
+      const input = document.getElementById('custom-api-key');
+      const val = input.value.trim();
+      const status = document.getElementById('key-status');
+      if (val) {
+        savedApiKey = val;
+        localStorage.setItem('zee_gemini_api_key', val);
+        status.innerHTML = '<span class="text-emerald-400">✔ API Key berhasil disimpan! Siap digunakan.</span>';
+        setTimeout(() => {
+          document.getElementById('api-key-panel').classList.add('hidden');
+        }, 1500);
+      } else {
+        localStorage.removeItem('zee_gemini_api_key');
+        savedApiKey = "";
+        status.innerHTML = '<span class="text-amber-400">API Key dikosongkan (menggunakan mode fallback).</span>';
+      }
+    }
 
     /**
-     * Helper to call Gemini 2.5 Flash API with exponential backoff
+     * Helper to call Gemini 3 Flash API with exponential backoff & Fallback
      */
     async function callGemini(promptText, systemInstructionText = "") {
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      const activeKey = savedApiKey || "";
+      
+      // Jika belum ada key yang dimasukkan, gunakan fallback respons pintar persona
+      if (!activeKey) {
+        return getPersonaFallback(promptText);
+      }
+
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${activeKey}`;
       
       const payload = {
         contents: [{ parts: [{ text: promptText }] }]
@@ -444,7 +509,7 @@
         };
       }
 
-      const delays = [1000, 2000, 4000, 8000];
+      const delays = [1000, 2000, 4000];
       for (let i = 0; i <= delays.length; i++) {
         try {
           const response = await fetch(apiUrl, {
@@ -470,11 +535,30 @@
           }
         } catch (err) {
           if (i === delays.length) {
-            throw err;
+            // Fallback jika API bermasalah/kuota habis
+            return getPersonaFallback(promptText);
           }
           await new Promise(res => setTimeout(res, delays[i]));
         }
       }
+    }
+
+    // Fallback cerdas agar Zee AI tetap bisa menjawab jika offline/key belum diisi
+    function getPersonaFallback(input) {
+      const lower = input.toLowerCase();
+      if (lower.includes('kenalan') || lower.includes('kepribadian') || lower.includes('siapa')) {
+        return "Halo! Gue Zee, he/him. Suka coding santai, dengerin lofi, minum susu, dan main Roblox. Kalau malam gue aktif banget karena jadwal tidur gue agak broken haha! ✨";
+      }
+      if (lower.includes('roblox') || lower.includes('game')) {
+        return "Gue suka main game santai atau adventure di Roblox! Kadang suka eksplor map bareng temen-temen pas baterai sosial masih penuh 🎮";
+      }
+      if (lower.includes('tidur') || lower.includes('sleep') || lower.includes('broken')) {
+        return "Jadwal tidur gue? Jangan ditiru ya wkwk, kadang tidur jam 3 subuh kadang bangun siang. Lagi berusaha perbaiki juga nih! 🌙☕";
+      }
+      if (lower.includes('musik') || lower.includes('lagu') || lower.includes('spotify')) {
+        return "Gue suka banget lofi chill vibes sama synthwave yang adem. Coba nyalain tombol musik di pojok kanan bawah, itu salah satu playlist favorit gue! 🎧";
+      }
+      return "Makasih udah mampir ke Sanctuary gue! Santai aja di sini ya, jangan lupa jaga kesehatan dan minum air putih hari ini ✨";
     }
 
     /* =========================================================
