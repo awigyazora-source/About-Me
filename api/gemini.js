@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'API key belum di-set di server' });
+    return res.status(500).json({ error: 'API key belum di-set di server (GEMINI_API_KEY kosong)' });
   }
 
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -23,12 +23,28 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!text) return res.status(502).json({ error: 'Respons kosong dari Gemini' });
+    const data = await response.json();
+
+    // Kalau Google balikin error (key salah, model salah, kuota habis, dll),
+    // tampilkan pesan aslinya biar gampang di-debug
+    if (!response.ok || data.error) {
+      console.error('Gemini API error:', JSON.stringify(data));
+      return res.status(response.status).json({
+        error: data.error?.message || 'Gemini API mengembalikan error',
+        details: data.error || data
+      });
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      console.error('Empty response:', JSON.stringify(data));
+      return res.status(502).json({ error: 'Respons kosong dari Gemini', details: data });
+    }
+
     return res.status(200).json({ text });
   } catch (err) {
-    return res.status(500).json({ error: 'Gagal menghubungi Gemini API' });
+    console.error('Fetch failed:', err.message);
+    return res.status(500).json({ error: 'Gagal menghubungi Gemini API', details: err.message });
   }
 }
