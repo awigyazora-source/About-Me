@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   // GET: ambil daftar pesan (dengan pagination)
   if (req.method === 'GET') {
     const offset = parseInt(req.query.offset || '0');
-    const limit = 15;
+    const limit = 10;
     const end = offset + limit - 1;
 
     const listRes = await fetch(`${KV_URL}/lrange/guestbook/${offset}/${end}`, { headers });
