@@ -185,6 +185,91 @@
     </a>
   </section>
 
+<!-- Guestbook Mini -->
+<section class="relative z-10 w-full max-w-md bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 shadow-2xl backdrop-blur-sm space-y-4">
+  <h2 class="text-sm font-semibold text-zinc-300 uppercase tracking-wider">📖 Guestbook</h2>
+
+  <form id="guestbook-form" class="space-y-2">
+    <input type="text" id="gb-name" maxlength="30" placeholder="Nama kamu" required
+      class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600">
+    <textarea id="gb-message" maxlength="200" placeholder="Tulis pesan buat Zee..." required rows="2"
+      class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 resize-none"></textarea>
+    <button type="submit" class="w-full py-2 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-medium transition">
+      Kirim Pesan
+    </button>
+    <p id="gb-error" class="text-xs text-red-400 hidden"></p>
+  </form>
+
+  <div id="gb-list" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar"></div>
+
+  <button id="gb-load-more" class="w-full py-2 text-xs text-zinc-400 hover:text-zinc-200 transition hidden">
+    Muat pesan lainnya
+  </button>
+</section>
+
+<script>
+  
+  let gbOffset = 0;
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function loadGuestbook() {
+    const res = await fetch(`/api/guestbook?offset=${gbOffset}`);
+    const data = await res.json();
+    const list = document.getElementById('gb-list');
+
+    data.messages.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'p-3 rounded-xl bg-zinc-950 border border-zinc-800 text-xs';
+      const date = new Date(m.time).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+      div.innerHTML = `<div class="flex justify-between items-center mb-1">
+          <span class="font-semibold text-zinc-200">${escapeHtml(m.name)}</span>
+          <span class="text-zinc-500">${date}</span>
+        </div>
+        <p class="text-zinc-400">${escapeHtml(m.message)}</p>`;
+      list.appendChild(div);
+    });
+
+    gbOffset += data.messages.length;
+    document.getElementById('gb-load-more').classList.toggle('hidden', !data.hasMore);
+  }
+
+  document.getElementById('gb-load-more').addEventListener('click', loadGuestbook);
+
+  document.getElementById('guestbook-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('gb-name').value;
+    const message = document.getElementById('gb-message').value;
+    const errorEl = document.getElementById('gb-error');
+    errorEl.classList.add('hidden');
+
+    const res = await fetch('/api/guestbook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, message })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorEl.textContent = data.error;
+      errorEl.classList.remove('hidden');
+      return;
+    }
+
+    document.getElementById('gb-message').value = '';
+    document.getElementById('gb-list').innerHTML = '';
+    gbOffset = 0;
+    loadGuestbook();
+  });
+
+  loadGuestbook();
+</script>
+
   <!-- GEMINI AI ORACLE MODAL -->
   <div id="aiModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
     <div class="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300" id="aiModalContainer">
